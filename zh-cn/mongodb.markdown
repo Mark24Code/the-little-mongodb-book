@@ -42,8 +42,6 @@ Karl 在 [the-little-mongodb-book](https://github.com/karlseguin/the-little-mong
 
 你会想知道，MongoDB 是不是适用于这一切。作为一个面向文档数据库，MongoDB 是最通用的 NoSQL 解决案。它可以看成是关系型数据库的代替方案。和关系型数据库一样，它也可以和其他的 NoSQL 解决案搭配在一起更好的工作。MongoDB 有优点也有缺点，我们将会在本书后面的章节中介绍。
 
-如你所见，我们混用了 MongoDB 和 Mongo 两个术语。
-
 # 开始 #
 本书大部分内容将会专注于 MongoDB 的核心功能。我们会用到 MongoDB 的 shell。因为 shell 不但有助于学习，而且还是个很有用的管理工具。实际代码中你需要用到 MongoDB 驱动。
 
@@ -213,7 +211,6 @@ Karl 在 [the-little-mongodb-book](https://github.com/karlseguin/the-little-mong
 	db.unicorns.find({gender: {$ne: 'f'},
 		weight: {$gte: 701}})
 
-    	
 `$exists` 用来匹配字段是否存在，比如:
 
 	db.unicorns.find({
@@ -524,7 +521,7 @@ MongoDB 可以胜任的一个特殊角色是在日志领域。有两点使得 Mo
 如果想让你的数据 "过期" ，基于时间而不是整个集合的大小，你可以用 [TTL 索引](http://docs.mongodb.org/manual/tutorial/expire-data/) ，所谓 TTL 是 "time-to-live" 的缩写。
 
 ## 持久性(Durability) ##
-在 1.8 之前的版本，MongoDB 不支持单服务器持久性。就是说，如果一个服务器崩溃了，可能会导致数据的丢失或者损坏。解决案是在多服务器上运行 MongoDB 副本 (MongoDB 支持复制)。日志(Journaling)是 1.8 版追加的一个非常重要的功能。从 2.0 版的 MongoDB 开始，日志是默认启动的，该功能允许快速恢复服务器，比如遭遇到了服务器崩溃或者停电的情况。   
+在 1.8 之前的版本，MongoDB 不支持单服务器持久性。就是说，如果一个服务器崩溃了，可能会导致数据的丢失或者损坏。解决案是在多服务器上运行 MongoDB 副本 (MongoDB 支持复制)。日志(Journaling)是 1.8 版追加的一个非常重要的功能。从 2.0 版的 MongoDB 开始，日志是默认启动的，该功能允许快速恢复服务器，比如遭遇到了服务器崩溃或者停电的情况。
 
 持久性在这里只是提一下，因为围绕 MongoDB 过去缺乏单服务器持久的问题，人们取得了众多成果。这个话题在以后的 Google 检索中也许还会继续出现。但是关于缺少日志功能这一缺点的信息，都是过时了的。
 
@@ -574,7 +571,7 @@ MongoDB 支持内嵌文档以及它灵活的 schema 设计，让两步提交没�
 		{$group: {_id:'$gender',  total:{$sum:1},
 		  avgVamp:{$avg:'$vampires'}}},
 		{$sort:{avgVamp:-1}} ])
-		
+
 这里我们介绍另外一个管道操作 `$sort` ，作用和你想的完全一致，还有和它一起用的 `$skip` 和 `$limit`。以及用 `$group` 操作 `$avg`。
 
 MongoDB 数组非常强大，并且他们不会阻止我们往保存中的数组中写入内容。我们需要可以 "flatten" 他们以便对所有的东西进行计数:
@@ -582,14 +579,14 @@ MongoDB 数组非常强大，并且他们不会阻止我们往保存中的数组
 	db.unicorns.aggregate([{$unwind:'$loves'},
      	{$group: {_id:'$loves',  total:{$sum:1},
 	 	unicorns:{$addToSet:'$name'}}},
-	  	{$sort:{total:-1}}, 
+	  	{$sort:{total:-1}},
 	  	{$limit:1} ])
-		
+
 这里我们可以找出独角兽最喜欢吃的食物，以及拿到喜欢这种食物的独角兽的名单。 `$sort` 和 `$limit` 的组合能让你拿到 "top N" 这种查询的结果。
 
 还有另外一个强大的管道操作叫做 [`$project`](http://docs.mongodb.org/manual/reference/operator/aggregation/project/#pipe._S_project) (类似于 `find`)，不但允许你拿到指定字段，还可以根据现存字段进行创建或计算一个新字段。比如，可以用数学操作，在做平均运算之前，对几个字段进行加法运算，或者你可以用字符串操作创建一个新的字段，用于拼接现有字段。
 
-这只是用聚合所能做到的众多功能中的皮毛， 2.6 的聚合拥有了更强大的力量，比如聚合命令可以返回结果集的游标(我们已经在第一章学过了) 或者可以将结果写到另外一个新集合中，通过 `$out` 管道操作。你可以从 [MongoDB 手册](http://docs.mongodb.org/manual/core/aggregation-pipeline/) 得到关于管道操作和表达式操作更多的例子。 
+这只是用聚合所能做到的众多功能中的皮毛， 2.6 的聚合拥有了更强大的力量，比如聚合命令可以返回结果集的游标(我们已经在第一章学过了) 或者可以将结果写到另外一个新集合中，通过 `$out` 管道操作。你可以从 [MongoDB 手册](http://docs.mongodb.org/manual/core/aggregation-pipeline/) 得到关于管道操作和表达式操作更多的例子。
 
 ## MapReduce ##
 MapReduce 分两步进行数据处理。首先是 map，然后 reduce。在 map 步骤中，转换输入文档和输出一个 key=>value 对(key 和/或 value 可以很复杂)。然后, key/value 对以 key 进行分组，有同样的 key 的 value 会被收入一个数组中。在 reduce 步骤中，获取 key 和该 key 的 value 的数组，生成最终结果。map 和 reduce 方法用 JavaScript 来编写。
@@ -645,7 +642,7 @@ MongoDB 的复制在某些方面和关系型数据库的复制类似。所有的
 ## 分片(Sharding) ##
 MongoDB 支持自动分片。分片是实现数据扩展的一种方法，依靠在跨服务器或者集群上进行数据分区来实现。一个最简单的实现是把所有的用户数据，按照名字首字母 A-M 放在服务器 1 ，然后剩下的放在服务器 2。谢天谢地，MongoDB 的拆分能力远比这种分法要强。分片不在本书的讨论范围之内，不过你应当有分片的概念，并且，当你的需求增长超过了使用单一副本集的时候，你应该考虑它。
 
-尽管复制有时候可以提高性能(通过将长时间查询隔离到从服务器，或者降低某些类型的查询的延迟),它的主要目的是维护高可用性。分片是扩展 MongoDB 集群的主要方法。把复制和分片结合起来实现可扩展和高可用性是禁术。 
+尽管复制有时候可以提高性能(通过将长时间查询隔离到从服务器，或者降低某些类型的查询的延迟),但它的主要目的是维护高可用性。分片是扩展 MongoDB 集群的主要方法。把复制和分片结合起来实现可扩展和高可用性的通用方法。
 
 ## 状态(Stats) ##
 你可以通过 `db.stats()` 查询数据库的状态。基本上都是关于数据库大小的信息。你还可以查询集合的状态，比如说 `unicorns` 集合，可以输入 `db.unicorns.stats()`。基本上都是关于集合大小的信息，以及集合的索引信息。
